@@ -79,7 +79,6 @@ def __main__():
     decay_rate = 0.005
 
     node = {}
-    # path = []
 
     node_df = pd.read_csv('node.csv', header=None)
     for row in node_df.iterrows():
@@ -93,25 +92,21 @@ def __main__():
         end = node[row[1][1]]
         cost = row[1][2]
         p = Path(start, end, cost)
-        # path.append(p)
         start.add_path(p)
         p = Path(end, start, cost)
-        # path.append(p)
         end.add_path(p)
 
     start_node = node[1]
     end_node = node[7]
 
-    for episode in range(total_episodes):
-        total_rewards = 0
-
+    def find_path(learn=True):
         # The initial state should be the start node with no station passed
         stations_passed = set()
         state = start_node.states[len(stations_passed)]
 
         for step in range(max_steps):
             tradeoff = random.uniform(0, 1)
-            if tradeoff > epsilon:
+            if not learn or tradeoff > epsilon:
                 # Exploitation (max Q in path)
                 action = state.get_best_action(stations_passed)
             else:
@@ -125,30 +120,22 @@ def __main__():
             if new_state.node.is_station and new_state.node not in stations_passed:
                 stations_passed.add(new_state.node)
 
-            total_rewards += reward
-            new_state_Q = new_state.get_best_action(stations_passed).Q
-            action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
+            if learn:
+                new_state_Q = new_state.get_best_action(stations_passed).Q
+                action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
+            else:
+                print('%d->%d,Station=%d,R=%d,Q=%f' % (state.node.name, new_state.node.name,
+                                                       len(stations_passed), action.R, action.Q))
 
             state = new_state
-
             if done:
                 break
 
+    for episode in range(total_episodes):
+        find_path(True)
         epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
 
-    stations_passed = set()
-    state = start_node.states[0]
-    for i in range(100):
-        action = state.get_best_action(stations_passed)
-        new_state = action.new_state
-        if new_state.node.is_station and new_state.node not in stations_passed:
-            stations_passed.add(new_state.node)
-        print('%d->%d,Station=%d,R=%d,Q=%f' % (state.node.name, new_state.node.name,
-                                               len(stations_passed), action.R, action.Q))
-        state = new_state
-        if state.node == end_node and len(stations_passed) >= stations_required:
-            break
-    pass
+    find_path(False)
 
 
 __main__()
