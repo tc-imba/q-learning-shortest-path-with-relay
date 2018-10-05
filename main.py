@@ -78,6 +78,12 @@ for episode in range(total_episodes):
         if new_state.is_station:
             station_passed += 1
 
+        if done:
+            if station_passed < 1:
+                reward -= 100
+            else:
+                reward += 10
+
         total_rewards += reward
         new_state_Q = new_state.path[0].Q
         for p in new_state.path:
@@ -88,9 +94,19 @@ for episode in range(total_episodes):
         state = new_state
 
         if done:
-            if station_passed < 1:
-                pass
             break
 
     epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+
+
+state = start_node
+for i in range(10):
+    action = state.path[0]
+    for p in state.path:
+        if p.Q > action.Q:
+            action = p
+    print(action.start.name, action.end.name, action.cost, action.Q)
+    state = action.end
+    if state == end_node:
+        break
 
