@@ -1,0 +1,8 @@
+TO DO
+
+- note id starting with 0 is good to avoid revisions of figures, but unnatural!
+
+- graph.add_edge
+- graph.add_node
+
+- class ugraph (not deriving from graph might be easier). do this after graph is stable

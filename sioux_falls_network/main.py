@@ -123,19 +123,19 @@ def __main__():
         paths.append(path)
 
     # Set the stations
-    nodes[2].is_station = True
-    nodes[8].is_station = True
-    nodes[10].is_station = True
-    nodes[14].is_station = True
-    nodes[16].is_station = True
-    nodes[22].is_station = True
+    nodes[5].is_station = True
+    nodes[11].is_station = True
+    nodes[13].is_station = True
+    nodes[18].is_station = True
+    # nodes[16].is_station = True
+    # nodes[22].is_station = True
 
     # Set the Max Fuel
     fuel_max = 12
 
     # Find the shortest path from 1 to 24
     start_node = nodes[1]
-    end_node = nodes[23]
+    end_node = nodes[20]
 
     # Q Learning parameters
     total_episodes = 15000  # Total episodes
