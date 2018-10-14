@@ -27,7 +27,7 @@ class Node:
 
 class Path:
     def __init__(self, init_node: Node, term_node: Node,
-                 capacity: float, free_flow_time: float, B: float, power: float):
+                 capacity: float = 10, free_flow_time: float = 1, B: float = 0.15, power: float = 4):
         self.a = free_flow_time
         self.b = free_flow_time * B / (capacity ** power)
         self.flow = init_node.flow[term_node.id]
@@ -85,9 +85,9 @@ class Action:
 
 
 class SearchState:
-    def __init__(self, prev_state, node: Node, total_cost: float, fuel_current: float):
+    def __init__(self, prev_state, path: Path, total_cost: float, fuel_current: float):
         self.prev_state = prev_state
-        self.node = node
+        self.path = path
         self.total_cost = total_cost
         self.fuel_current = fuel_current
 
