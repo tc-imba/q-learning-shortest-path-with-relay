@@ -1,7 +1,6 @@
-import numpy as np
+import math
 import pandas as pd
 import random
-import math
 
 fuel_tank_divisions = 5
 
@@ -83,7 +82,7 @@ class Action:
         self.Q = 0
 
 
-def __main__():
+def load_data(stations_id: list):
     nodes = {}
     paths = []
 
@@ -93,7 +92,6 @@ def __main__():
             nodes[id] = Node(id)
         return nodes[id]
 
-    # Read the SiouxFalls DataSet
     trips_df = pd.read_excel('SiouxFalls_trips.xlsx', header=None)
     init_node_id = 0
     init_node = None
@@ -123,81 +121,8 @@ def __main__():
         paths.append(path)
 
     # Set the stations
-    nodes[5].is_station = True
-    nodes[11].is_station = True
-    nodes[13].is_station = True
-    nodes[18].is_station = True
-    # nodes[16].is_station = True
-    # nodes[22].is_station = True
+    for id in stations_id:
+        assert id in nodes
+        nodes[id].is_station = True
 
-    # Set the Max Fuel
-    fuel_max = 12
-
-    # Find the shortest path from 1 to 24
-    start_node = nodes[1]
-    end_node = nodes[20]
-
-    # Q Learning parameters
-    total_episodes = 15000  # Total episodes
-    learning_rate = 0.8  # Learning rate
-    max_steps = 99  # Max steps per episode
-    gamma = 0.95  # Discounting rate
-
-    # Exploration parameters
-    epsilon = 1.0  # Exploration rate
-    max_epsilon = 1.0  # Exploration probability at start
-    min_epsilon = 0.01  # Minimum exploration probability
-    decay_rate = 0.005
-
-    def find_path(learn=True):
-        # The initial state should be max fuel
-        fuel_current = fuel_max
-        state = start_node.states[fuel_tank_divisions - 1]
-
-        for step in range(max_steps):
-            tradeoff = random.uniform(0, 1)
-            if not learn or tradeoff > epsilon:
-                # Exploitation (max Q in path)
-                action = state.get_best_action(fuel_current, fuel_max)
-            else:
-                # Exploration (random Q in path)
-                action = state.get_random_action(fuel_current, fuel_max)
-
-            new_state = action.new_state
-            reward = action.R
-            done = new_state.node == end_node
-
-            if new_state.fuel_rank_state >= 0 and new_state.node.is_station:
-                fuel_current = fuel_max
-                assert new_state.fuel_rank_state == fuel_tank_divisions - 1
-            else:
-                fuel_current += action.R  # action.R = -path.cost
-
-            if learn:
-                if new_state.fuel_rank_state < 0:
-                    assert fuel_current < 0
-                    new_state_Q = -100
-                else:
-                    new_state_Q = new_state.get_best_action(fuel_current, fuel_max).Q
-                action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
-            else:
-                print('%d->%d,fuel=%d,R=%d,Q=%f' % (state.node.id, new_state.node.id,
-                                                    fuel_current, action.R, action.Q))
-
-            if new_state.fuel_rank_state < 0:
-                if not learn:
-                    print('No Fuel')
-                break
-
-            state = new_state
-            if done:
-                break
-
-    for episode in range(total_episodes):
-        find_path(True)
-        epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
-
-    find_path(False)
-
-
-__main__()
+    return nodes, paths
