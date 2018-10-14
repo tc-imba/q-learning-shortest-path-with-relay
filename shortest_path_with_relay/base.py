@@ -11,6 +11,7 @@ class Node:
         self.is_station = False
         self.flow = {}
         self.states = []
+        self.paths = []
         for i in range(fuel_tank_divisions):
             self.states.append(State(self, i))
         self.state_fail = State(self, -1)
@@ -21,6 +22,7 @@ class Node:
     def add_path(self, path):
         for i in range(fuel_tank_divisions):
             self.states[i].add_path(path)
+        self.paths.append(path)
 
 
 class Path:
@@ -80,6 +82,14 @@ class Action:
         self.new_state = new_state
         self.R = -path.cost
         self.Q = 0
+
+
+class SearchState:
+    def __init__(self, prev_state, node: Node, total_cost: float, fuel_current: float):
+        self.prev_state = prev_state
+        self.node = node
+        self.total_cost = total_cost
+        self.fuel_current = fuel_current
 
 
 def load_data(stations_id: list):

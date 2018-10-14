@@ -29,6 +29,7 @@ def __main__(stations_id):
     def find_path(learn=True):
         # The initial state should be max fuel
         fuel_current = fuel_max
+        total_reward = 0
         state = start_node.states[fuel_tank_divisions - 1]
 
         for step in range(max_steps):
@@ -44,6 +45,7 @@ def __main__(stations_id):
             reward = action.R
             done = new_state.node == end_node
 
+            total_reward += reward
             if new_state.fuel_rank_state >= 0 and new_state.node.is_station:
                 fuel_current = fuel_max
                 assert new_state.fuel_rank_state == fuel_tank_divisions - 1
@@ -58,7 +60,7 @@ def __main__(stations_id):
                     new_state_Q = new_state.get_best_action(fuel_current, fuel_max).Q
                 action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
             else:
-                print('%d->%d,fuel=%d,R=%d,Q=%f' % (state.node.id, new_state.node.id,
+                print('%d->%d,fuel=%f,R=%f,Q=%f' % (state.node.id, new_state.node.id,
                                                     fuel_current, action.R, action.Q))
 
             if new_state.fuel_rank_state < 0:
@@ -69,6 +71,9 @@ def __main__(stations_id):
             state = new_state
             if done:
                 break
+
+        if not learn:
+            print('total cost: %f' % -total_reward)
 
     for episode in range(total_episodes):
         find_path(True)
