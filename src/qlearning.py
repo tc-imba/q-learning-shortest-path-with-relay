@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-from shortest_path_with_relay.base import load_data, fuel_tank_divisions
+from src.base import load_data, fuel_tank_divisions
 
 
 def find_minimum_path(stations_id, start_id, end_id, fuel_max=12, total_episodes=10000, silent=True):

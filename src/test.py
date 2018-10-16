@@ -1,5 +1,5 @@
-import shortest_path_with_relay.dijkstra as dijkstra
-import shortest_path_with_relay.qlearning as qlearning
+import src.dijkstra as dijkstra
+import src.qlearning as qlearning
 
 stations_id = [5, 11, 13, 18]
 fuel_max = 12

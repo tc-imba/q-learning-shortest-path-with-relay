@@ -1,4 +1,4 @@
-from shortest_path_with_relay.base import load_data, Path, SearchState
+from src.base import load_data, Path, SearchState
 import queue
 
 
