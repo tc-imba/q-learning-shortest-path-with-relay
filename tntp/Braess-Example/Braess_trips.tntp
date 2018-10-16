@@ -1,7 +1,3 @@
-<NUMBER OF ZONES> 2
-<TOTAL OD FLOW>   6.0
-<END OF METADATA>
-
-Origin 	1 
-    1 :      0.0;     2 :     6.0;
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:f3907f228904c9fc4080ef6392590def567cd15e1f607cf3fafad1114e47c679
+size 115
