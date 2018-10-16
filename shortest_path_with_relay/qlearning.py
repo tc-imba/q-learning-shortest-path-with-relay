@@ -4,18 +4,20 @@ import random
 from shortest_path_with_relay.base import load_data, fuel_tank_divisions
 
 
-def __main__(stations_id):
+def find_minimum_path(stations_id, start_id, end_id, fuel_max=12, total_episodes=10000, silent=True):
     nodes, paths = load_data(stations_id)
 
     # Set the Max Fuel
-    fuel_max = 12
+    # fuel_max = 12
 
     # Find the shortest path from 1 to 24
-    start_node = nodes[1]
-    end_node = nodes[20]
+    assert start_id in nodes
+    assert end_id in nodes
+    start_node = nodes[start_id]
+    end_node = nodes[end_id]
 
     # Q Learning parameters
-    total_episodes = 15000  # Total episodes
+    # total_episodes = 1500  # Total episodes
     learning_rate = 0.8  # Learning rate
     max_steps = 99 * len(nodes)  # Max steps per episode
     gamma = 0.95  # Discounting rate
@@ -26,7 +28,8 @@ def __main__(stations_id):
     min_epsilon = 0.01  # Minimum exploration probability
     decay_rate = 0.005
 
-    def find_path(learn=True):
+    def find_path(min_total_cost, learn=True):
+
         # The initial state should be max fuel
         fuel_current = fuel_max
         total_reward = 0
@@ -59,9 +62,12 @@ def __main__(stations_id):
                 else:
                     new_state_Q = new_state.get_best_action(fuel_current, fuel_max).Q
                 action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
-            else:
+            elif not silent:
                 print('%d->%d,fuel=%f,R=%f,Q=%f' % (state.node.id, new_state.node.id,
                                                     fuel_current, action.R, action.Q))
+
+            if -total_reward >= min_total_cost:
+                break
 
             if new_state.fuel_rank_state < 0:
                 if not learn:
@@ -70,17 +76,22 @@ def __main__(stations_id):
 
             state = new_state
             if done:
+                min_total_cost = -total_reward
                 break
 
-        if not learn:
+        if not learn and not silent:
             print('total cost: %f' % -total_reward)
 
+        return min_total_cost
+
+    min_total_cost = float('inf')
+
     for episode in range(total_episodes):
-        find_path(True)
+        min_total_cost = find_path(min_total_cost, True)
         epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
 
-    find_path(False)
+    return find_path(min_total_cost, False)
 
 
 if __name__ == '__main__':
-    __main__([5, 11, 13, 18])
+    find_minimum_path([5, 11, 13, 18], 1, 20, fuel_max=12, silent=False)

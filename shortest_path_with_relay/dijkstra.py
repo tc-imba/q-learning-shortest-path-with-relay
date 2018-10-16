@@ -2,15 +2,17 @@ from shortest_path_with_relay.base import load_data, Path, SearchState
 import queue
 
 
-def __main__(stations_id):
+def find_minimum_path(stations_id, start_id, end_id, fuel_max=12, silent=True):
     nodes, paths = load_data(stations_id)
 
     # Set the Max Fuel
-    fuel_max = 12
+    # fuel_max = 12
 
     # Find the shortest path from 1 to 24
-    start_node = nodes[1]
-    end_node = nodes[20]
+    assert start_id in nodes
+    assert end_id in nodes
+    start_node = nodes[start_id]
+    end_node = nodes[end_id]
 
     min_total_cost = float('inf')
     min_search_state = None
@@ -51,9 +53,12 @@ def __main__(stations_id):
             print('%d->%d,fuel=%f,R=%f' % (path.init_node.id, path.term_node.id,
                                            search_state.fuel_current, -path.cost))
 
-    print_path(min_search_state)
-    print('total cost: %f' % min_total_cost)
+    if not silent:
+        print_path(min_search_state)
+        print('total cost: %f' % min_total_cost)
+
+    return min_total_cost
 
 
 if __name__ == '__main__':
-    __main__([5, 11, 13, 18])
+    find_minimum_path([5, 11, 13, 18], 1, 20, fuel_max=12, silent=False)
