@@ -30,8 +30,9 @@ def read_tntp_net(f):
             continue
         elif line[0] == '~' and not header:
             header = line[1:].strip(' ;\t').split('\t')
-            for i, name in enumerate(header):
+            for i in range(10):
                 data.append([])
+            for i, name in enumerate(header):
                 df_data[name.strip()] = data[i]
         elif header:
             for i, num in enumerate(line.strip(' ;\t').split('\t')):
@@ -58,8 +59,9 @@ def read_tntp_trips(f, nodes):
     return df_data
 
 
-def read_tntp(network, file, base_path=os.path.join(os.path.dirname(__file__), '..', 'tntp')):
-    filename = os.path.join(base_path, network, '%s_%s.tntp' % (network, file))
+def read_tntp(network, file, base_path=os.path.join(os.path.dirname(__file__), '..', 'tntp'), alias=None):
+    alias = alias or network
+    filename = os.path.join(base_path, network, '%s_%s.tntp' % (alias, file))
     attrs = {}
     df_data = {}
     with open(filename) as f:

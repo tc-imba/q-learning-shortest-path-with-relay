@@ -2,8 +2,8 @@ from src.base import load_data, Path, SearchState
 import queue
 
 
-def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silent=True):
-    nodes, paths = load_data(network, stations_id)
+def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silent=True, alias=None):
+    nodes, paths = load_data(network, stations_id, alias=alias)
 
     # Set the Max Fuel
     # fuel_max = 12
@@ -61,4 +61,4 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silen
 
 
 if __name__ == '__main__':
-    find_minimum_path('SiouxFalls', [5, 11, 13, 18], 1, 20, fuel_max=12, silent=False)
+    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 20, fuel_max=100, silent=False, alias='EMA')

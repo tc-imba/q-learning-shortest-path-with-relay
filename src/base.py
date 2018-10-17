@@ -32,7 +32,8 @@ class Path:
         self.a = free_flow_time
         self.b = free_flow_time * B / (capacity ** power)
         self.flow = init_node.flow[term_node.id]
-        self.cost = self.a + self.b * self.flow
+        # self.cost = self.a + self.b * self.flow
+        self.cost = free_flow_time
         self.init_node = init_node
         self.term_node = term_node
 
@@ -93,7 +94,7 @@ class SearchState:
         self.fuel_current = fuel_current
 
 
-def load_data(network: str, stations_id: list):
+def load_data(network: str, stations_id: list, alias=None):
     nodes = {}
     paths = []
 
@@ -103,14 +104,14 @@ def load_data(network: str, stations_id: list):
             nodes[id] = Node(id)
         return nodes[id]
 
-    trips_df, attrs = src.utils.read_tntp(network, 'trips')
+    trips_df, attrs = src.utils.read_tntp(network, 'trips', alias=alias)
     for i in range(attrs['NUMBER OF ZONES']):
         init_node = ensure_node(i + 1)
         for j in range(attrs['NUMBER OF ZONES']):
             term_node = ensure_node(j + 1)
             init_node.add_flow(term_node, trips_df[i + 1][j + 1])
 
-    net_df, attrs = src.utils.read_tntp(network, 'net')
+    net_df, attrs = src.utils.read_tntp(network, 'net', alias=alias)
     for row in net_df.iterrows():
         init_node = ensure_node(int(row[1][0]))
         term_node = ensure_node(int(row[1][1]))
