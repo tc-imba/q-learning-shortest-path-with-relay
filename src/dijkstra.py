@@ -1,8 +1,9 @@
 from src.base import load_data, Path, SearchState
 import queue
+import time
 
-
-def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silent=True, alias=None):
+def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silent=True,
+                      alias=None, cost_bound=float('inf'), time_limit=0):
     nodes, paths = load_data(network, stations_id, alias=alias)
 
     # Set the Max Fuel
@@ -14,11 +15,14 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silen
     start_node = nodes[start_id]
     end_node = nodes[end_id]
 
-    min_total_cost = float('inf')
+    min_total_cost = cost_bound
     min_search_state = None
 
     X = queue.Queue()
     X.put(SearchState(None, Path(start_node, start_node), 0, fuel_max))
+
+    optimal = True
+    start_time = time.clock()
 
     while not X.empty():
         state_current = X.get()
@@ -45,6 +49,10 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silen
                 min_search_state = new_state
             else:
                 X.put(new_state)
+        if time.clock() - start_time >= time_limit > 0:
+            optimal = False
+            break
+
 
     def print_path(search_state: SearchState):
         if search_state.prev_state:
@@ -57,7 +65,7 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, silen
         print_path(min_search_state)
         print('total cost: %f' % min_total_cost)
 
-    return min_total_cost
+    return min_total_cost, optimal
 
 
 if __name__ == '__main__':
