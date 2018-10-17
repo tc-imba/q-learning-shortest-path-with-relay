@@ -1,6 +1,7 @@
 import math
 import pandas as pd
 import random
+import src.utils
 
 fuel_tank_divisions = 5
 
@@ -92,7 +93,7 @@ class SearchState:
         self.fuel_current = fuel_current
 
 
-def load_data(stations_id: list):
+def load_data(network: str, stations_id: list):
     nodes = {}
     paths = []
 
@@ -102,30 +103,21 @@ def load_data(stations_id: list):
             nodes[id] = Node(id)
         return nodes[id]
 
-    trips_df = pd.read_excel('SiouxFalls_trips.xlsx', header=None)
-    init_node_id = 0
-    init_node = None
-    for row in trips_df.iterrows():
-        if row[1][0] == 'Origi':
-            init_node_id += 1
-            init_node = ensure_node(init_node_id)
-            continue
-        if init_node:
-            for i in range(len(row[1]) // 2):
-                term_node_id = row[1][2 * i]
-                if math.isnan(term_node_id):
-                    break
-                term_node = ensure_node(term_node_id)
-                init_node.add_flow(term_node, float(row[1][2 * i + 1]))
+    trips_df, attrs = src.utils.read_tntp(network, 'trips')
+    for i in range(attrs['NUMBER OF ZONES']):
+        init_node = ensure_node(i + 1)
+        for j in range(attrs['NUMBER OF ZONES']):
+            term_node = ensure_node(j + 1)
+            init_node.add_flow(term_node, trips_df[i + 1][j + 1])
 
-    net_df = pd.read_excel('SiouxFalls_net.xlsx', header=0)
+    net_df, attrs = src.utils.read_tntp(network, 'net')
     for row in net_df.iterrows():
-        init_node = ensure_node(int(row[1][1]))
-        term_node = ensure_node(int(row[1][2]))
-        capacity = float(row[1][3])
-        free_flow_time = float(row[1][5])
-        B = float(row[1][6])
-        power = float(row[1][7])
+        init_node = ensure_node(int(row[1][0]))
+        term_node = ensure_node(int(row[1][1]))
+        capacity = float(row[1][2])
+        free_flow_time = float(row[1][4])
+        B = float(row[1][5])
+        power = float(row[1][6])
         path = Path(init_node, term_node, capacity / 1000, free_flow_time, B, power)
         init_node.add_path(path)
         paths.append(path)
@@ -136,3 +128,7 @@ def load_data(stations_id: list):
         nodes[id].is_station = True
 
     return nodes, paths
+
+
+if __name__ == '__main__':
+    nodes, paths = load_data('SiouxFalls', [5, 11, 13, 18])

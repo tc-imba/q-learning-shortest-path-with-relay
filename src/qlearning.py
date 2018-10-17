@@ -4,8 +4,8 @@ import random
 from src.base import load_data, fuel_tank_divisions
 
 
-def find_minimum_path(stations_id, start_id, end_id, fuel_max=12, total_episodes=10000, silent=True):
-    nodes, paths = load_data(stations_id)
+def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, total_episodes=10000, silent=True):
+    nodes, paths = load_data(network, stations_id)
 
     # Set the Max Fuel
     # fuel_max = 12
@@ -94,4 +94,4 @@ def find_minimum_path(stations_id, start_id, end_id, fuel_max=12, total_episodes
 
 
 if __name__ == '__main__':
-    find_minimum_path([5, 11, 13, 18], 1, 20, fuel_max=12, silent=False)
+    find_minimum_path('SiouxFalls', [5, 11, 13, 18], 1, 20, fuel_max=12, silent=False)
