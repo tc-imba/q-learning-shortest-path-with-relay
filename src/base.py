@@ -94,11 +94,12 @@ class Action:
 
 
 class SearchState:
-    def __init__(self, prev_state, path: Path, total_cost: float, fuel_current: float):
+    def __init__(self, prev_state, path: Path, total_cost: float, fuel_current: float, is_station=False):
         self.prev_state = prev_state
         self.path = path
         self.total_cost = total_cost
         self.fuel_current = fuel_current
+        self.is_station = is_station
 
 
 def load_data(network: str, stations_id: list, alias=None, station_cost=1.):
