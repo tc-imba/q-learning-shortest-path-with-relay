@@ -4,11 +4,10 @@ import random
 import src.utils
 
 fuel_tank_divisions = 5
-station_cost = 1
 
 
 class Node:
-    def __init__(self, id: int):
+    def __init__(self, id: int, station_cost: float):
         self.id = id
         self.is_station = False
         self.station_cost = station_cost
@@ -102,14 +101,14 @@ class SearchState:
         self.fuel_current = fuel_current
 
 
-def load_data(network: str, stations_id: list, alias=None):
+def load_data(network: str, stations_id: list, alias=None, station_cost=1.):
     nodes = {}
     paths = []
 
     def ensure_node(id):
         id = int(id)
         if id not in nodes:
-            nodes[id] = Node(id)
+            nodes[id] = Node(id, station_cost)
         return nodes[id]
 
     trips_df, attrs = src.utils.read_tntp(network, 'trips', alias=alias)

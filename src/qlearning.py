@@ -5,8 +5,8 @@ from src.base import load_data, fuel_tank_divisions
 
 
 def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12., total_episodes=10000, silent=True,
-                      alias=None):
-    nodes, paths = load_data(network, stations_id, alias=alias)
+                      alias=None, station_cost=1.):
+    nodes, paths = load_data(network, stations_id, alias=alias, station_cost=station_cost)
 
     # Set the Max Fuel
     # fuel_max = 12
@@ -95,4 +95,5 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12., tota
 
 
 if __name__ == '__main__':
-    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 20, fuel_max=0.5, silent=False, alias='EMA')
+    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 20, fuel_max=0.5, silent=False, alias='EMA',
+                      station_cost=0.2)
