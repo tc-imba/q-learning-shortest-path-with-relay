@@ -4,12 +4,14 @@ import random
 import src.utils
 
 fuel_tank_divisions = 5
+station_cost = 1
 
 
 class Node:
     def __init__(self, id: int):
         self.id = id
         self.is_station = False
+        self.station_cost = station_cost
         self.flow = {}
         self.states = []
         self.paths = []
@@ -48,6 +50,8 @@ class State:
         actions = []
         for i in range(fuel_tank_divisions):
             actions.append(Action(path.term_node.states[i], path))
+        # Add Fuel Action
+        actions.append(Action(path.term_node.states[fuel_tank_divisions - 1], path, True))
         # Fail Action
         actions.append(Action(path.term_node.state_fail, path))
         self.paths.append((path, actions))
@@ -56,14 +60,15 @@ class State:
         available_actions = []
         for (path, actions) in self.paths:
             if fuel_current >= path.cost:
+                # Add Fuel Action
                 if path.term_node.is_station:
-                    fuel_rank_state_new = fuel_tank_divisions - 1
-                else:
-                    fuel_rank_state_new = math.floor((fuel_current - path.cost) / fuel_total * fuel_tank_divisions)
+                    available_actions.append(actions[fuel_tank_divisions])
+                # Normal Action
+                fuel_rank_state_new = math.floor((fuel_current - path.cost) / fuel_total * fuel_tank_divisions)
                 available_actions.append(actions[fuel_rank_state_new])
             else:
                 # Fail Action
-                available_actions.append(actions[fuel_tank_divisions])
+                available_actions.append(actions[fuel_tank_divisions + 1])
         return available_actions
 
     def get_best_action(self, fuel_current, fuel_total):
@@ -80,9 +85,12 @@ class State:
 
 
 class Action:
-    def __init__(self, new_state: State, path: Path):
+    def __init__(self, new_state: State, path: Path, is_station=False):
         self.new_state = new_state
         self.R = -path.cost
+        self.is_station = is_station
+        if self.is_station:
+            self.R -= path.term_node.station_cost
         self.Q = 0
 
 

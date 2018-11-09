@@ -4,7 +4,8 @@ import random
 from src.base import load_data, fuel_tank_divisions
 
 
-def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, total_episodes=10000, silent=True, alias=None):
+def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12., total_episodes=10000, silent=True,
+                      alias=None):
     nodes, paths = load_data(network, stations_id, alias=alias)
 
     # Set the Max Fuel
@@ -49,7 +50,7 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, total
             done = new_state.node == end_node
 
             total_reward += reward
-            if new_state.fuel_rank_state >= 0 and new_state.node.is_station:
+            if new_state.fuel_rank_state >= 0 and action.is_station:
                 fuel_current = fuel_max
                 assert new_state.fuel_rank_state == fuel_tank_divisions - 1
             else:
@@ -63,8 +64,8 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, total
                     new_state_Q = new_state.get_best_action(fuel_current, fuel_max).Q
                 action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
             elif not silent:
-                print('%d->%d,fuel=%f,R=%f,Q=%f' % (state.node.id, new_state.node.id,
-                                                    fuel_current, action.R, action.Q))
+                print('%d->%d,fuel=%f,R=%f,Q=%f,station=%d' % (state.node.id, new_state.node.id, fuel_current,
+                                                               action.R, action.Q, action.is_station))
 
             if -total_reward >= min_total_cost:
                 break
@@ -94,4 +95,4 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12, total
 
 
 if __name__ == '__main__':
-    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 20, fuel_max=100, silent=False, alias='EMA')
+    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 20, fuel_max=0.5, silent=False, alias='EMA')
