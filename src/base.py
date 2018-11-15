@@ -70,12 +70,17 @@ class State:
                 available_actions.append(actions[fuel_tank_divisions + 1])
         return available_actions
 
-    def get_best_action(self, fuel_current, fuel_total):
+    def get_best_action(self, fuel_current, fuel_total, passed_nodes):
         actions = self.get_available_actions(fuel_current, fuel_total)
-        action = actions[0]
-        for i in range(1, len(actions)):
-            if actions[i].Q > action.Q:
+        action = None
+        for i in range(len(actions)):
+            if not action or actions[i].Q > action.Q:
+                new_node_id = actions[i].new_state.node.id
+                if new_node_id in passed_nodes and passed_nodes[new_node_id] >= fuel_current:
+                    continue
                 action = actions[i]
+        if not action:
+            action = actions[random.randint(0, len(actions) - 1)]
         return action
 
     def get_random_action(self, fuel_current, fuel_total):

@@ -35,15 +35,19 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12., tota
         fuel_current = fuel_max
         total_reward = 0
         state = start_node.states[fuel_tank_divisions - 1]
+        passed_nodes = {}
 
         for step in range(max_steps):
             tradeoff = random.uniform(0, 1)
             if not learn or tradeoff > epsilon:
                 # Exploitation (max Q in path)
-                action = state.get_best_action(fuel_current, fuel_max)
+                action = state.get_best_action(fuel_current, fuel_max, passed_nodes)
             else:
                 # Exploration (random Q in path)
                 action = state.get_random_action(fuel_current, fuel_max)
+
+            # if not action:
+            #     break
 
             new_state = action.new_state
             reward = action.R
@@ -56,12 +60,20 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12., tota
             else:
                 fuel_current += action.R  # action.R = -path.cost
 
+            if new_state.node.id not in passed_nodes:
+                passed_nodes[new_state.node.id] = fuel_current
+            else:
+                passed_nodes[new_state.node.id] = max(fuel_current, passed_nodes[new_state.node.id])
+
             if learn:
                 if new_state.fuel_rank_state < 0:
                     assert fuel_current < 0
-                    new_state_Q = -100
+                    new_state_Q = -fuel_max * 5
                 else:
-                    new_state_Q = new_state.get_best_action(fuel_current, fuel_max).Q
+                    new_state_action = new_state.get_best_action(fuel_current, fuel_max, passed_nodes)
+                    # if not new_state_action:
+                    #     break
+                    new_state_Q = new_state_action.Q
                 action.Q += learning_rate * (reward + gamma * new_state_Q - action.Q)
             elif not silent:
                 print('%d->%d,fuel=%f,R=%f,Q=%f,station=%d' % (state.node.id, new_state.node.id, fuel_current,
@@ -95,5 +107,5 @@ def find_minimum_path(network, stations_id, start_id, end_id, fuel_max=12., tota
 
 
 if __name__ == '__main__':
-    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 20, fuel_max=0.5, silent=False, alias='EMA',
+    find_minimum_path('Eastern-Massachusetts', [5, 11, 13, 18], 1, 69, fuel_max=0.8, silent=False, alias='EMA',
                       station_cost=0.2)
